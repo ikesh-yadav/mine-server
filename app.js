@@ -1,12 +1,37 @@
 var io = require('socket.io').listen(8080),
 	proc = require('child_process');
 
-const io_min = require('socket.io');
-
 const cors = require('cors');
 const express = require("express");
 const path = require("path");
-const $ = require( "jquery" );
+const { exit } = require('process');
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  defaultMeta: { service: 'user-service' },
+  transports: [
+    //
+    // - Write all logs with level `error` and below to `error.log`
+    // - Write all logs with level `info` and below to `combined.log`
+    //
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
+});
+
+//
+// If we're not in production then log to the `console` with the format:
+// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
+//
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple(),
+  }));
+}
+
+
 
 const app = express();
 
@@ -22,13 +47,14 @@ app.use(express.static(path.join(__dirname, "/static/")));
 app.get("/", (req, res) => { res.sendFile(path.join(__dirname, "/static", "/mp.html")); } );
 
 
-app.listen(port, () => {
+app.listen(port, (err) => {
+	if(err) {console.log(err);return;}
     console.log("Server started at port: "+port)
 })
 
 io.on('start_server', () => {
 	console.log('start server random input');
-})
+});
 
 io.sockets.on('connection', function(socket) {
 
@@ -44,7 +70,7 @@ io.sockets.on('connection', function(socket) {
 
 	// When the client says to start a server...
 	socket.on('start_server', function(name) {
-		process.stdout.write('start server request recieved');
+		
 		// If a server is already running or server doesn't exist
 		if (mc_server || !servers[name]) {
 			// Let the user know that it failed.
@@ -52,7 +78,10 @@ io.sockets.on('connection', function(socket) {
 			// Stop execution of this callback
 			return;
 		}
-		
+		console.log("starting server");
+		//console.log(process.stdout);
+
+		//process.stdout.write('start server request recieved');
 		// Set which server is currently running
 		server = name;
 
@@ -88,11 +117,10 @@ io.sockets.on('connection', function(socket) {
 			io.sockets.emit('status', null);
 		});
 
-		process.stdout.on('data', (data)=> {
-			io.sockets.emit('process_stdout', data);
-		});
+		
 
 	}); // End .on('start_server')
+
 
 	socket.on('command', function(cmd) {
 		if (mc_server) {
@@ -100,6 +128,14 @@ io.sockets.on('connection', function(socket) {
 			mc_server.stdin.write(cmd + "\r");
 		} else {
 			socket.emit('fail', cmd);
+		}
+	});
+
+	socket.on('stop_server', () => {
+		if(mc_server) {
+			mc_server.stdin.write('stop'+"\r");
+		} else {
+			socket.emit('server already stopped');
 		}
 	});
 });
@@ -113,3 +149,9 @@ process.stdin.on('data', function (data) {
 		mc_server.stdin.write(data);
 	}
 });
+
+
+// process.stdout.on('data', (data)=> {
+// 	console.log('got data from main process');
+// 	socket.emit('process_stdout', data);
+// });

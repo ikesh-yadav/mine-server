@@ -36,10 +36,14 @@
         function sendStartServerEvent() {
             socket.emit('start_server', 'single');
         }
+        let sendStopServerEvent = ()=>{
+            socket.emit('stop_server', 'single');
+        }
     </script>
 
 
     <button onclick = "sendStartServerEvent()">Start Server</button>
+    <button onclick = "sendStopServerEvent()">Stop Server</button>
     <div class="console">
         <p>Console:</p>
         <ul id="console-list">

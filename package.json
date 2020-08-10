@@ -2,14 +2,15 @@
   "name": "MineCraft_Server_Starter",
   "version": "0.1.0",
   "scripts": {
-    "start":"node app",
-    "main":"node app",
-    "heroku-postbuild":"npm install"
+    "start": "node app",
+    "main": "node app",
+    "heroku-postbuild": "npm install"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "jquery": "^3.5.1",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "winston": "^3.3.3"
   }
 }
