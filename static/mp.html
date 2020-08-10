@@ -26,7 +26,12 @@
             let li = document.createElement('li');
             li.innerHTML = data;
             consoleList.appendChild(li);
+        });
+
+        socket.on('process_stdout', (data)=>{
+            console.log("process_stdout::"+data);
         })
+
 
         function sendStartServerEvent() {
             socket.emit('start_server', 'single');

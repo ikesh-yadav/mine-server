@@ -44,7 +44,7 @@ io.sockets.on('connection', function(socket) {
 
 	// When the client says to start a server...
 	socket.on('start_server', function(name) {
-		console.log('start server request recieved');
+		process.stdout.write('start server request recieved');
 		// If a server is already running or server doesn't exist
 		if (mc_server || !servers[name]) {
 			// Let the user know that it failed.
@@ -71,7 +71,7 @@ io.sockets.on('connection', function(socket) {
 		mc_server.stdout.on('data', function (data) {
 			//console.log('got data from minecraft spawn')
 			if (data) {
-				process.stdout.write(data);
+				//process.stdout.write(data);
 				io.sockets.emit('console', ""+data);
 				console_stuff.push(data);
 			}
@@ -86,6 +86,10 @@ io.sockets.on('connection', function(socket) {
 		mc_server.on('exit', function () {
 			mc_server = server = null;
 			io.sockets.emit('status', null);
+		});
+
+		process.stdout.on('data', (data)=> {
+			io.sockets.emit('process_stdout', data);
 		});
 
 	}); // End .on('start_server')
