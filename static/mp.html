@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimal working example</title>
+</head>
+<body>
+    <h1>Minecraft Server</h1>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script>
+
+        const socket = io('http://localhost:8080');
+        socket.on('connect', () => {
+            console.log('socket connected');
+            //socket.emit('start_server');
+        });
+
+        socket.on('console', (data) => {
+            console.log(data);
+        })
+
+        function sendStartServerEvent() {
+            socket.emit('start_server', 'single');
+        }
+    </script>
+
+
+    <button onclick = "sendStartServerEvent()">Start Server</button>
+    <div class="console">
+        <p>Console:</p>
+        <ul>
+            
+        </ul>
+    </div>
+    
+</body>
+</html>
