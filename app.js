@@ -13,6 +13,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 let server = null;
 let mc_server = null;
+let console_stuff = [];
 
 app.use(cors());
 
@@ -72,6 +73,7 @@ io.sockets.on('connection', function(socket) {
 			if (data) {
 				process.stdout.write(data);
 				io.sockets.emit('console', ""+data);
+				console_stuff.push(data);
 			}
 		});
 

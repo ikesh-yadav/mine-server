@@ -8,8 +8,12 @@
     <h1>Minecraft Server</h1>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script>
-
-        const socket = io('http://localhost:8080');
+        //console.log(window.location.href);
+        const url = window.location.href
+        let arr = url.split(":");
+        let finalURL = arr[0]+':'+arr[1]+':8080';
+        console.log(finalURL)
+        const socket = io(finalURL);
         socket.on('connect', () => {
             console.log('socket connected');
             //socket.emit('start_server');
@@ -17,6 +21,10 @@
 
         socket.on('console', (data) => {
             console.log(data);
+            let consoleList = document.getElementById("console-list");
+            let li = document.createElement('li');
+            li.innerHTML = data;
+            consoleList.appendChild(li);
         })
 
         function sendStartServerEvent() {
@@ -28,7 +36,7 @@
     <button onclick = "sendStartServerEvent()">Start Server</button>
     <div class="console">
         <p>Console:</p>
-        <ul>
+        <ul id="console-list">
             
         </ul>
     </div>
