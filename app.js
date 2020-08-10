@@ -37,6 +37,7 @@ const app = express();
 
 const port = process.env.PORT || 3000;
 let server = null;
+let status = 'Stopped';
 let mc_server = null;
 let console_stuff = [];
 
@@ -65,7 +66,7 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('get_status', function(){
-		socket.emit('status', server);
+		socket.emit('status', status);
 	});
 
 	// When the client says to start a server...
@@ -85,6 +86,10 @@ io.sockets.on('connection', function(socket) {
 		// Set which server is currently running
 		server = name;
 
+		//Change status of server to starting
+		status = 'Starting' ;
+		io.sockets.emit('status', status);
+
 		// Start the Minecraft Server
 		mc_server = proc.spawn(
 			// Uses Java to run the server from a command line child process. The command prompt will not be visible.
@@ -95,12 +100,17 @@ io.sockets.on('connection', function(socket) {
 			//{ cwd: "C:/Program\ Files\ (x86)/Minecraft/_" + servers[server] }
 		);
 
-		io.sockets.emit('status', server);
+		// status = 'Starting' ;
+		// io.sockets.emit('status', status);
 
 		mc_server.stdout.on('data', function (data) {
 			//console.log('got data from minecraft spawn')
 			if (data) {
 				//process.stdout.write(data);
+				if(data == 'Done'){
+					io.sockets.emit('status', "Running");
+				}
+
 				io.sockets.emit('console', ""+data);
 				console_stuff.push(data);
 			}
@@ -114,7 +124,7 @@ io.sockets.on('connection', function(socket) {
 
 		mc_server.on('exit', function () {
 			mc_server = server = null;
-			io.sockets.emit('status', null);
+			io.sockets.emit('status', 'Stopped');
 		});
 
 		
@@ -135,7 +145,7 @@ io.sockets.on('connection', function(socket) {
 		if(mc_server) {
 			mc_server.stdin.write('stop'+"\r");
 		} else {
-			socket.emit('server already stopped');
+			socket.emit('fail','server already stopped');
 		}
 	});
 });

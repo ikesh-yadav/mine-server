@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Minimal working example</title>
+    <title>Minecraft Server</title>
 </head>
 <body>
     <h1>Minecraft Server</h1>
@@ -12,7 +12,7 @@
         const url = window.location.href
         let arr = url.split("/");
         let domain = arr[2].split(':')[0]
-        let finalURL = arr[0]+"//"+domain+':8080';
+        let finalURL = arr[0]+"//"+domain+':8080/';
         console.log(finalURL)
         const socket = io(finalURL);
         socket.on('connect', () => {
@@ -32,6 +32,10 @@
             console.log("process_stdout::"+data);
         })
 
+        socket.on('status', (data)=>{
+            let status = document.getElementById('server-status');
+            status.innerHTML = data;
+        })
 
         function sendStartServerEvent() {
             socket.emit('start_server', 'single');
@@ -39,9 +43,16 @@
         let sendStopServerEvent = ()=>{
             socket.emit('stop_server', 'single');
         }
+
+        let send = () => {
+            let command_field = document.getElementById('commands');
+            //console.log(command);
+            socket.emit('command', command_field.value);
+            command_field.value = '';
+        }
     </script>
 
-
+    <label id="server-status">Waiting for status</label><br>
     <button onclick = "sendStartServerEvent()">Start Server</button>
     <button onclick = "sendStopServerEvent()">Stop Server</button>
     <div class="console">
@@ -50,6 +61,7 @@
             
         </ul>
     </div>
-    
+    <input type="text" id="commands"/>
+    <button onclick="send()">send</button>
 </body>
 </html>
