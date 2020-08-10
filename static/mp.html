@@ -9,12 +9,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script>
         //console.log(window.location.href);
-        const url = window.location.href
-        let arr = url.split("/");
-        let domain = arr[2].split(':')[0]
-        let finalURL = arr[0]+"//"+domain+':8080/';
-        console.log(finalURL)
-        const socket = io(finalURL);
+        // const url = window.location.href
+        // let arr = url.split("/");
+        // let domain = arr[2].split(':')[0]
+        // let finalURL = arr[0]+"//"+domain+':3000/';
+        // console.log(finalURL)
+        // const socket = io(finalURL);
+        
+        const socket = io();
+
         socket.on('connect', () => {
             console.log('socket connected');
             //socket.emit('start_server');
